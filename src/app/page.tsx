@@ -1,101 +1,128 @@
-import Image from "next/image";
+
+'use client';
+import { useRouter } from "next/navigation";
+import Head from "next/head";
+import { IoMdLogIn } from "react-icons/io";
+import { FiUserPlus } from "react-icons/fi";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { useEffect, useState } from "react";
+import { WalletComponents } from "@/components/OnchainkitComponents/WalletComponent";
+import LandingPage from "@/components/layout/LandingPage";
+import { useAuth } from "@/context/AuthContext";
+import RoleSelectModal from "@/components/modal/role"
+import { ethers } from 'ethers';
+import {ContractAddress, contractABI} from '@/constants/contract'
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
+  console.log(user)
+  const [showRoleSelectModal, setShowRoleSelectModal] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+  const toggleRoleSelectModal = () => {
+    setShowRoleSelectModal(!showRoleSelectModal);
+  };
+
+
+const getUser = async () => {
+
+  const provider = new ethers.JsonRpcProvider('https://base-sepolia.g.alchemy.com/v2/XJjEhlbtuCP5a6aZvpacjn16Aqd9G0z1');
+  const contract = new ethers.Contract(ContractAddress, contractABI, provider);
+
+  try {
+    console.log(user?.address)
+
+    const userDetails = await contract.getUserByAddress(user?.address);
+    console.log(userDetails)
+  
+    if (!userDetails || userDetails.length !== 3) {
+      console.log('No valid user details found for address', user?.address);
+      router.push('/');
+      return;
+    }
+
+    const [ userName ,userRole ] = userDetails;
+
+    console.log(userName)
+
+    const roleMapping: {[key:string]: number} = {
+      Buyer: 0,
+      Merchant: 1,
+    };
+
+    const roleNumeric = Number(userRole);
+    const roleString = Object.keys(roleMapping).find(key => roleMapping[key] === roleNumeric);
+
+    console.log(roleString)
+
+    if (roleString === 'Buyer') {
+      router.push('/app/buyer/products/view'); 
+    } else if (roleString === 'Merchant') {
+      router.push('/app/merchant/product/dashboard'); 
+    } else {
+      router.push('/');
+    }
+  } catch (error) {
+    console.error('Failed to fetch user details:', error);
+  }
+};
+
+useEffect(() => {
+  getUser();
+}, [user]);
+
+
+
+  return (
+    <>
+      <Head>
+        <title>Payflip | Home</title>
+      </Head>
+      <div className="mx-auto h-screen bg-[#B2BEB5]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 after:absolute after:opacity-25 after:left-0 after:right-0 after:top-0 after:bottom-0 after:bg-transparent after:z-[-1] bg-[#B2BEB5]">
+          <div>
+            <p className="text-[#FFE840] text-4xl font-bold">PayFlip</p>
+
+            <img src="https://static.scientificamerican.com/sciam/cache/file/3FE9ABC3-2CC3-41D8-AE636C8A1CD61909_source.jpeg?w=1200" alt="payflip" className="object-cover h-[99vh] bg-gray-100" />
+          </div>
+          {user?.isConnecting ?
+            (
+              <LoadingSpinner />
+            ) : user?.isConnected ?
+              (
+                <div className="relative flex items-center justify-center w-full md:w-[11/12] xl:w-[8/12] mx-auto">
+                  <div className="flex flex-col items-center justify-center">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-short text-gray-900 dark:text-white">
+                      <span className="block xl:inline text-[#FFE840]">Welcome to PayFlip</span>
+                    </h1>
+                    <p className="mt-3 sm:mt-5 md:mt-5 mx-auto sm:mx-0 mb-6 text-xl md:text-xl text-[#FFE840] leading-base">
+                      Set Up an Account as a Merchant or Buyer.
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-center mb-4 md:mb-8 space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
+                      <button className="bg-[#FFE840] hover:bg-[#FFE841] text-white font-bold py-2 px-4 rounded inline-flex items-center" onClick={() => toggleRoleSelectModal()}>
+                        <FiUserPlus className="w-6 h-6 mr-1" />
+                        Set Up Profile
+                      </button>
+                    </div>
+                  </div>
+                  <div className="absolute top-0 right-0 mt-4 mr-4">
+                    <WalletComponents />
+                  </div>
+                </div>
+              ) : (
+                <LandingPage />
+              )}
+
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+      {showRoleSelectModal && (
+        <RoleSelectModal
+          isOpen={showRoleSelectModal}
+          onClose={() => setShowRoleSelectModal(false)}
+        />
+      )}
+    </>
   );
-}
+};
