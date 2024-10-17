@@ -8,7 +8,7 @@ interface AdminLayoutProps {
 
 const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
 	return (
-		<div className="flex flex-col flex-1 transition-all bg-[#B2BEB5] ">
+		<div className="flex flex-col flex-1 transition-all bg-[#FFF] ">
 			<div className="flex flex-1 flex-col md:flex-row">
 				<MerchantSider />
 				<div className="flex flex-1 flex-col px-2 md:px-[30px] py-5 overflow-y-auto h-screen">

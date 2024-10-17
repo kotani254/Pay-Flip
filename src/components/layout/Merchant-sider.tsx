@@ -59,7 +59,7 @@ const LogOutBtn = () => {
 		<div className="flex flex-col mt-4 cursor-pointer mb-auto" onClick={handleLogout}>
 			<div className={cn("text-sm flex space-x-3 items-center")}>
 				<div className="mr-1">
-					<LogOut className="text-[#FFE840]" size={18} />
+					<LogOut className="text-[#F09F24]" size={18} />
 				</div>
 				<span className="text-[14px] text-[#000]">LogOut</span>
 			</div>
@@ -72,13 +72,13 @@ const MerchantSider = () => {
 		<div className="hidden md:flex flex-col w-[14rem]  border-r border-gray-200 h-screen overflow-y-auto">
 			<div className="flex flex-row gap-4 items-center">
 				<div className="flex items-center gap-2 p-4 ">
-					<p className="text-[#FFE840] text-4xl font-bold">PayFlip</p>
+					<p className="text-[#F09F24] text-4xl font-bold">PayFlip</p>
 				</div>
 			</div>
 			<div className="flex flex-col mt-8 space-y-6 p-6">
-				<LinkItem title="Dashboard" icon={<LayoutDashboard className="text-[#FFE840]" size={18} />} href="/merchant/product/dashboard" />
-				<LinkItem title="Add Products" icon={<LayoutDashboard className="text-[#FFE840]" size={18} />} href="/merchant/product/new" />
-				<LinkItem title="My Products" icon={<LayoutDashboard className="text-[#FFE840]" size={18} />} href="/merchant/product/view" />
+				<LinkItem title="Dashboard" icon={<LayoutDashboard className="text-[#F09F24]" size={18} />} href="/merchant/product/dashboard" />
+				<LinkItem title="Add Products" icon={<LayoutDashboard className="text-[#F09F24]" size={18} />} href="/merchant/product/new" />
+				<LinkItem title="My Products" icon={<LayoutDashboard className="text-[#F09F24]" size={18} />} href="/merchant/product/view" />
 
 				<LogOutBtn />
 			</div>

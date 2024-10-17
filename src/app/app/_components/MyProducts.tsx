@@ -81,7 +81,7 @@ const MyProducts = () => {
                                 <TableCell>{product.price}</TableCell>
                                 <TableCell>{product.description}</TableCell>
                                 <TableCell>
-                                    <Button onClick={() => handleBuy(product)}>
+                                    <Button className='bg-[#F09F24] w-full transform rounded-lg p-2' onClick={() => handleBuy(product)}>
                                         Edit
                                     </Button>
                                 </TableCell>

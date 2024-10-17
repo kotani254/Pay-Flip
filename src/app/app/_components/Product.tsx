@@ -48,10 +48,12 @@ const Products = () => {
     const [products, setProducts] = useState<ProductData[]>([]);
   const [showPayModal, setShowPayModal] = useState(false);
   const [selectedMerchant, setSelectedMerchant] = useState<string>('');
+  const [price, setPrice] = useState<string>('');
 
-  const handleBuy = (merchantAddress: string) => {
+  const handleBuy = (merchantAddress: string, price: string) => {
     console.log("Opening pay modal"); 
     setSelectedMerchant(merchantAddress);
+    setPrice(price)
     setShowPayModal(true);
   };
 
@@ -113,7 +115,7 @@ const Products = () => {
                                 </TableCell> */}
                                 <TableCell>{product.merchantAddress}</TableCell>
                                 <TableCell>
-                                    <Button className='bg-[#FFE840] w-full transform rounded-lg p-2' onClick={() => handleBuy(product.merchantAddress)}>
+                                    <Button className='bg-[#F09F24] w-full transform rounded-lg p-2' onClick={() => handleBuy(product.merchantAddress, product.price)}>
                                         Buy
                                     </Button>
                                 </TableCell>
@@ -128,6 +130,7 @@ const Products = () => {
               isOpen={showPayModal}
               onClose={() => setShowPayModal(false)}
               merchantAddress={selectedMerchant}
+              price={price}
             />
           )}
           </>

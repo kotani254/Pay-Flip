@@ -22,7 +22,7 @@ import { useAuth } from '@/context/AuthContext';
 import React, { useEffect, useState } from 'react';
 import Moralis from 'moralis';
 import { EvmChain } from "@moralisweb3/common-evm-utils";
-interface Balance {
+interface Token {
     symbol: string;
     formatted_balance: string;
 }
@@ -30,7 +30,7 @@ interface Balance {
 export function WalletComponents() {
 
   const { user } = useAuth();
-  const [balances, setBalances] = useState<Array<Balance>>([]);
+  const [balances, setBalances] = useState<Array<Token>>([]);
 
   useEffect(() => {
       const initializeMoralis = async () => {
@@ -75,7 +75,7 @@ export function WalletComponents() {
       getBalance();
   }, [user]);
 
-  const renderBalance = (token) => {
+  const renderBalance = (token: Token) => {
     if (token.symbol.toLowerCase() === 'usdc' && parseFloat(token.formatted_balance) === 0) {
       return "Zero balance";
     }
@@ -85,7 +85,7 @@ export function WalletComponents() {
   return (
     <div className="flex justify-end">
       <Wallet>
-        <ConnectWallet className='bg-[#FFE840]'>
+        <ConnectWallet className='bg-[#F09F24]'>
           <Avatar className="h-6 w-6" />
           <Name />
         </ConnectWallet>
@@ -94,7 +94,7 @@ export function WalletComponents() {
             className="px-4 pt-3 pb-2"
             hasCopyAddressOnClick
           >
-            <Avatar className='bg-[#FFE840]' />
+            <Avatar className='bg-[#F09F24]' />
             <Name />
             <Address />
             <EthBalance />

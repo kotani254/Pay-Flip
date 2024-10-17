@@ -24,13 +24,13 @@ const RoleSelectModal: React.FC<RoleSelectModalProps> = ({ isOpen, onClose }) =>
         <p>Please select whether you are a Merchant or a Buyer:</p>
         <div className="flex  items-center justify-center">
           <button
-            className="bg-[#FFE840] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-[#F09F24] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={() => navigateWithRole('merchant')}
           >
             Merchant
           </button>
           <button
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-4"
+            className="bg-[#F09F24] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-4"
             onClick={() => navigateWithRole('buyer')}
           >
             Buyer

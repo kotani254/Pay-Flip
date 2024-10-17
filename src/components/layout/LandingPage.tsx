@@ -15,9 +15,9 @@ const LandingPage = () => {
             <div className="relative flex items-center justify-center w-full">
                 <div className="flex flex-col">
                     <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-short text-gray-900 dark:text-white">
-                        <span className="block xl:inline text-[#FFE840]">Welcome to PayFlip</span>
+                        <span className="block xl:inline text-[#F09F24]">Welcome to PayFlip</span>
                     </h1>
-                    <p className="mt-3 sm:mt-5 md:mt-5 mx-auto sm:mx-0 mb-6 text-lg md:text-xl text-[#FFE840] leading-base">
+                    <p className="mt-3 sm:mt-5 md:mt-5 mx-auto sm:mx-0 mb-6 text-lg md:text-xl text-[#F09F24] leading-base">
                         Flip the script on payments: local currency in, stablecoins out with PayFlip.
                     </p>
                 </div>

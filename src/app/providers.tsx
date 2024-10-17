@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { base } from 'wagmi/chains'; 
 import { type ReactNode, useState } from 'react';
 import { type State, WagmiProvider } from 'wagmi';
- 
 import { getConfig } from '@/wagmi';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/context/AuthContext';
