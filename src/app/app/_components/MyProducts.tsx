@@ -13,18 +13,37 @@ import { Button } from "@/components/ui/button";
 import { ethers } from 'ethers';
 import { useAuth } from '@/context/AuthContext';
 import {ContractAddress, contractABI} from '@/constants/contract'
+import { useReadContract } from 'wagmi';
 
 
 interface ProductData {
     productName: string;
     description: string;
     price: string;
-    merchantAddress: string;
 }
 
 const MyProducts = () => {
     const { user } = useAuth();
     const [products, setProducts] = useState<ProductData[]>([]);
+
+
+    // const { data: MyProducts } = useReadContract({
+    //     abi: contractABI,
+    //     address: ContractAddress,
+    //     functionName: 'getProductsByMerchant',
+    //     args: [user?.address],
+    //   }) as { data: ProductData | undefined };
+    
+    //   console.log("MyProducts", MyProducts)
+
+    //   if (MyProducts && Array.isArray(MyProducts)) {
+    //     const formattedProducts = MyProducts.map((product: ProductData[]) => ({
+    //         productName: product[0],
+    //         description: product[1],
+    //         price: product[3],
+    //     }));
+    //     // setProducts(formattedProducts)
+    //   }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,11 +71,7 @@ const MyProducts = () => {
         }
     }, [user]);
 
-    const handleBuy = (product: ProductData) => {
-        // Implement buy functionality here
-        console.log('Buying product:', product);
-        // You might want to call a smart contract method or open a modal here
-    };
+    
 
     return (
         <div>
@@ -81,7 +96,7 @@ const MyProducts = () => {
                                 <TableCell>{product.price}</TableCell>
                                 <TableCell>{product.description}</TableCell>
                                 <TableCell>
-                                    <Button className='bg-[#F09F24] w-full transform rounded-lg p-2' onClick={() => handleBuy(product)}>
+                                    <Button className='bg-[#F09F24] w-full transform rounded-lg p-2'>
                                         Edit
                                     </Button>
                                 </TableCell>

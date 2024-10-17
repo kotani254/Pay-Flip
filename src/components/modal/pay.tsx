@@ -16,7 +16,7 @@ interface RoleSelectModalProps {
     isOpen: boolean;
     onClose: () => void;
     merchantAddress: string;
-    price: string;
+    price: number;
 }
 
 const countryPhoneCodes = {
@@ -47,16 +47,17 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
         setCustomerKey('')
     }
 
-const AUTH_TOKEN = process.env.NEXT_PUBLIC_KOTANI_API_KEY!;
-const API_URL = process.env.NEXT_PUBLIC_KOTANI_API_URL!;
+    const AUTH_TOKEN = process.env.NEXT_PUBLIC_KOTANI_API_KEY!;
+    const API_URL = process.env.NEXT_PUBLIC_KOTANI_API_URL!;
 
-console.log(AUTH_TOKEN)
-console.log(API_URL)
+    console.log(AUTH_TOKEN)
+    console.log(API_URL)
+
 
     const getOnrampExchangeRate = async () => {
-        
+
         try {
-            const response =  await fetch(`${API_URL}/rate/onramp`, {
+            const response = await fetch(`${API_URL}/rate/onramp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -68,14 +69,14 @@ console.log(API_URL)
                     fiatAmount: price
                 })
             })
-            if(!response.ok){
+            if (!response.ok) {
                 console.log("Error getting the rates")
             }
             const responseData = await response.json();
             const cryptoAmount = responseData.data.cryptoAmount;
             console.log(cryptoAmount)
             setCryptoAmount(cryptoAmount)
-            
+
         } catch (error) {
             console.error('Error fetching rates:', error);
             return false;
@@ -119,7 +120,7 @@ console.log(API_URL)
     };
 
     const checkDepositStatus = async (referenceId: string, retries = 8, delay = 10000) => {
-      const toastId =   toast.loading("Processing Payment...")
+        const toastId = toast.loading("Processing Payment...")
         try {
             for (let i = 0; i < retries; i++) {
                 const response = await fetch(`${API_URL}/deposit/mobile-money/status/${referenceId}`, {
@@ -159,10 +160,10 @@ console.log(API_URL)
     };
 
     const sendToMerchantWallet = async () => {
-        
-       const toastId =  toast.loading('Transferring to merchant address...', { id: 'transferToMerchant' });
-       await getOnrampExchangeRate()
-       console.log(cryptoAmount)
+
+        const toastId = toast.loading('Transferring to merchant address...', { id: 'transferToMerchant' });
+        await getOnrampExchangeRate()
+        console.log(cryptoAmount)
         try {
             const response = await fetch(`${API_URL}/onramp/fiat-to-crypto/wallet`, {
                 method: 'POST',
@@ -210,7 +211,7 @@ console.log(API_URL)
     }
 
     const getOrCreateCustomer = async () => {
-        
+
         try {
             const response = await fetch(`${API_URL}/customer/mobile-money/phone/${phone}`, {
                 method: 'GET',
@@ -220,7 +221,7 @@ console.log(API_URL)
             });
             const responseData = await response.json();
             console.log(responseData)
-    
+
             if (responseData.success == true) {
                 setCustomerKey(responseData.data.customer_key)
             } else {
@@ -233,13 +234,14 @@ console.log(API_URL)
                     body: JSON.stringify({
                         phone_number: phone,
                         country_code: country,
-                        account_name: name
+                        account_name: name,
+                        network: "MPESA"
                     })
                 });
 
                 if (createResponse.ok) {
                     const createResponseData = await createResponse.json();
-                setCustomerKey(createResponseData.data.customer_key)
+                    setCustomerKey(createResponseData.data.customer_key)
 
                 } else {
                     throw new Error('Failed to create new customer');
@@ -267,9 +269,15 @@ console.log(API_URL)
                 },
                 body: JSON.stringify({
                     customer_key: customerKey,
-                    amount: price,
+                    amount: Number(price),
                     wallet_id: "67110003ef605dee0039e42f"
                 }),
+            });
+
+            console.log('Deposit request:', {
+                customer_key: customerKey,
+                amount: Number(price),
+                wallet_id: "67110003ef605dee0039e42f"
             });
 
             if (!response.ok) {
@@ -289,17 +297,18 @@ console.log(API_URL)
         setLoading(true);
 
         try {
+            console.log(price)
             const customerKey = await getOrCreateCustomer();
             setCustomerKey(customerKey);
 
             const referenceId = await makeDeposit(customerKey);
-            
+
             const isDepositSuccessful = await checkDepositStatus(referenceId);
 
             if (isDepositSuccessful) {
                 toast.success("Deposit successful.", { id: 'payment' });
                 const isMerchantTransferSuccessful = await sendToMerchantWallet();
-                
+
                 if (isMerchantTransferSuccessful) {
                     toast.success("Payment made successfully")
                     reset();
@@ -362,7 +371,8 @@ console.log(API_URL)
                         <Label>Amount</Label>
                         <Input
                             type="text"
-                            value={price}
+                            value={price.toString()}
+                            onChange={(e) => setAmount(Number(e.target.value))}
                             readOnly
                             className="bg-gray-100"
                         />
