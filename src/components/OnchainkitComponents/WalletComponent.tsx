@@ -16,7 +16,6 @@ import {
   Identity,
   EthBalance,
 } from '@coinbase/onchainkit/identity';
-import { color } from '@coinbase/onchainkit/theme';
 import { TokenImage } from '@coinbase/onchainkit/token';
 import { useAuth } from '@/context/AuthContext';
 import React, { useEffect, useState } from 'react';
@@ -50,7 +49,7 @@ export function WalletComponents() {
               console.log(user?.address)
               try {
                   const address = user.address;
-                  const chain = EvmChain.BASE_SEPOLIA;
+                  const chain = EvmChain.BASE;
 
                   const response = await Moralis.EvmApi.token.getWalletTokenBalances({
                       address,

@@ -2,10 +2,8 @@
 'use client';
 import { useRouter } from "next/navigation";
 import Head from "next/head";
-import { IoMdLogIn } from "react-icons/io";
 import { FiUserPlus } from "react-icons/fi";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { useEffect, useState } from "react";
 import { WalletComponents } from "@/components/OnchainkitComponents/WalletComponent";
 import LandingPage from "@/components/layout/LandingPage";
@@ -14,17 +12,16 @@ import RoleSelectModal from "@/components/modal/role"
 import { ethers } from 'ethers';
 import {ContractAddress, contractABI} from '@/constants/contract'
 
-import { useReadContract } from 'wagmi'
 
-interface UserDetails {
-  userName: string;
-  userRole: number;
-  address: string;
-}
+// interface UserDetails {
+//   userName: string;
+//   userRole: number;
+//   address: string;
+// }
 
 export default function Home() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   console.log(user)
   const [showRoleSelectModal, setShowRoleSelectModal] = useState(false);
 
@@ -33,43 +30,55 @@ export default function Home() {
     setShowRoleSelectModal(!showRoleSelectModal);
   };
 
-  const { data: userDetails } = useReadContract({
-    abi: contractABI,
-    address: ContractAddress,
-    functionName: 'getUserByAddress',
-    args: [user?.address],
-  }) as { data: UserDetails | undefined };
 
-  console.log(userDetails)
+  const getUser = async () => {
 
-  if (userDetails && Array.isArray(userDetails) && userDetails.length === 3) {
-    const userName = userDetails[0];  
-    const userRole = userDetails[1]; 
-    const address = userDetails[2];  
+    const provider = new ethers.JsonRpcProvider('https://base-sepolia.g.alchemy.com/v2/XJjEhlbtuCP5a6aZvpacjn16Aqd9G0z1');
+    const contract = new ethers.Contract(ContractAddress, contractABI, provider);
   
-    console.log('User Name:', userName);
-    console.log('User Role:', userRole);
-    console.log('Address:', address);
+    try {
+      console.log(user?.address)
   
-    const roleMapping: { [key: string]: number } = {
-      Buyer: 0,
-      Merchant: 1,
-    };
+      const userDetails = await contract.getUserByAddress(user?.address);
+      console.log(userDetails)
+    
+      if (!userDetails || userDetails.length !== 3) {
+        console.log('No valid user details found for address', user?.address);
+        router.push('/');
+        return;
+      }
   
-    const roleNumeric = Number(userRole);
-    const roleString = Object.keys(roleMapping).find(key => roleMapping[key] === roleNumeric);
+      const [ userName ,userRole ] = userDetails;
   
-    if (roleString === 'Buyer') {
-      router.push('/app/buyer/products/view'); 
-    } else if (roleString === 'Merchant') {
-      router.push('/app/merchant/product/dashboard'); 
-    } else {
-      router.push('/');
+      console.log(userName)
+  
+      const roleMapping: {[key:string]: number} = {
+        Buyer: 0,
+        Merchant: 1,
+      };
+  
+      const roleNumeric = Number(userRole);
+      const roleString = Object.keys(roleMapping).find(key => roleMapping[key] === roleNumeric);
+  
+      console.log(roleString)
+  
+      // Redirect based on the role
+      if (roleString === 'Buyer') {
+        router.push('/app/buyer/products/view'); 
+      } else if (roleString === 'Merchant') {
+        router.push('/app/merchant/product/dashboard'); 
+      } else {
+        router.push('/');
+      }
+    } catch (error) {
+      console.error('Failed to fetch user details:', error);
+      // Handle error, e.g., show an error message
     }
-  } else {
-    console.log('No valid user details found for address', user?.address);
-    router.push('/');
-  }
+  };
+  
+  useEffect(() => {
+    getUser();
+  }, [user]);
   
 
   return (

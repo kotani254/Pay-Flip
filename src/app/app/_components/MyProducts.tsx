@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { ethers } from 'ethers';
 import { useAuth } from '@/context/AuthContext';
 import {ContractAddress, contractABI} from '@/constants/contract'
-import { useReadContract } from 'wagmi';
+// import { useReadContract } from 'wagmi';
 
 
 interface ProductData {
@@ -41,7 +41,7 @@ const MyProducts = () => {
     //         productName: product[0],
     //         description: product[1],
     //         price: product[3],
-    //     }));
+    //     })) as unknown as ProductData[];
     //     // setProducts(formattedProducts)
     //   }
 

@@ -1,9 +1,9 @@
 // contexts/AuthContext.tsx
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
 import { useRouter } from 'next/navigation';
-import { base, baseSepolia } from 'wagmi/chains'; 
+import {  baseSepolia } from 'wagmi/chains'; 
 
 
 interface User {
@@ -28,8 +28,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User>({} as User);
   const router = useRouter();
-  const {connect, connectors, error, status} = useConnect()
-  const {address, isConnected, isConnecting, isDisconnected} = useAccount()
+  const {connect, connectors} = useConnect()
+  const {address, isConnected, isConnecting} = useAccount()
   const account = useAccount();
 
 
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    useDisconnect();
+    // useDisconnect();
     setIsAuthenticated(false);
     setUser({} as User);
   };

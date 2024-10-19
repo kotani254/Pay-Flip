@@ -1,15 +1,13 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormProvider, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { InferType, object, string } from "yup";
-import { encodeFunctionData } from 'viem';
+import {  object, string } from "yup";
 import toast from "react-hot-toast";
 import { Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import {
     Transaction,
     TransactionButton,
@@ -19,13 +17,12 @@ import {
     TransactionStatusLabel,
 } from '@coinbase/onchainkit/transaction';
 import type { LifecycleStatus } from '@coinbase/onchainkit/transaction';
-import { base, baseSepolia } from 'wagmi/chains'; 
+import {  baseSepolia } from 'wagmi/chains'; 
 import { contractABI, ContractAddress } from '@/constants/contract';
 import { AbiFunction, ContractFunctionParameters } from 'viem';
 
 
 
-// Define the schema for personal details validation
 const personalDetailsSchema = object({
     productName: string().required('Name is required'),
     description: string().required(),
@@ -38,8 +35,7 @@ const personalDetailsSchema = object({
 
 const AddProduct = () => {
     const formMethods = useForm({ resolver: yupResolver(personalDetailsSchema) });
-    const { handleSubmit, control } = formMethods;
-    const [loading, setLoading] = useState<boolean>(false);
+    const {  control } = formMethods;
     const router = useRouter()
 
     const transactionContracts: ContractFunctionParameters[] = [

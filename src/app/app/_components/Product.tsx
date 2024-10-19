@@ -12,25 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { ethers } from 'ethers';
 import Pay from '@/components/modal/pay';
-import { useRouter } from 'next/navigation';
-import {
-    Transaction,
-    TransactionButton,
-    TransactionSponsor,
-    TransactionStatus,
-    TransactionStatusAction,
-    TransactionStatusLabel,
-} from '@coinbase/onchainkit/transaction';
-import type { LifecycleStatus } from '@coinbase/onchainkit/transaction';
-import { base, baseSepolia } from 'wagmi/chains'; 
 import { contractABI, ContractAddress } from '@/constants/contract';
-import { AbiFunction, ContractFunctionParameters } from 'viem';
 
 interface ProductData {
     productName: string;
     description: string;
     imageUrl: string;
-    price: string;
+    price: number;
     merchantAddress: string; 
 }
 
@@ -38,7 +26,7 @@ interface Product {
     name: string;
     description: string;
     imageUrl: string;
-    price: string;
+    price: number;
     merchant: string; 
 }
 
@@ -48,9 +36,9 @@ const Products = () => {
     const [products, setProducts] = useState<ProductData[]>([]);
   const [showPayModal, setShowPayModal] = useState(false);
   const [selectedMerchant, setSelectedMerchant] = useState<string>('');
-  const [price, setPrice] = useState<string>('');
+  const [price, setPrice] = useState<number>(0);
 
-  const handleBuy = (merchantAddress: string, price: string) => {
+  const handleBuy = (merchantAddress: string, price: number) => {
     console.log("Opening pay modal"); 
     setSelectedMerchant(merchantAddress);
     setPrice(price)

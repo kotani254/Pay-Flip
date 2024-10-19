@@ -1,12 +1,10 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/context/AuthContext';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { InferType, object, string } from "yup";
+import { object, string } from "yup";
 import toast from "react-hot-toast";
 import { Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
@@ -19,7 +17,7 @@ import {
     TransactionStatusLabel,
 } from '@coinbase/onchainkit/transaction';
 import type { LifecycleStatus } from '@coinbase/onchainkit/transaction';
-import { base, baseSepolia } from 'wagmi/chains'; 
+import {  baseSepolia } from 'wagmi/chains'; 
 import { contractABI, ContractAddress } from '@/constants/contract';
 import { AbiFunction, ContractFunctionParameters } from 'viem';
 
@@ -34,9 +32,7 @@ interface RoleProps {
 
 const PersonalDetails = ({ role }: RoleProps) => {
     const formMethods = useForm({ resolver: yupResolver(personalDetailsSchema) });
-    const { handleSubmit, reset, control, watch } = formMethods;
-    const { user } = useAuth();
-    const [loading, setLoading] = useState<boolean>(false);
+    const {  control, watch } = formMethods;
     const router = useRouter();
 
     const name = watch('name');

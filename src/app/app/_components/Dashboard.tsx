@@ -32,7 +32,7 @@ const Dashboard = () => {
                 console.log(user?.address)
                 try {
                     const address = user.address;
-                    const chain = EvmChain.BASE_SEPOLIA;
+                    const chain = EvmChain.BASE;
 
                     const response = await Moralis.EvmApi.token.getWalletTokenBalances({
                         address,

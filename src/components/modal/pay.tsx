@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import {
@@ -19,12 +18,6 @@ interface RoleSelectModalProps {
     price: number;
 }
 
-const countryPhoneCodes = {
-    KE: '+254',
-    GHA: '+233',
-    TZ: '+255',
-    UG: '+256',
-};
 
 const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress, price }) => {
     const [name, setName] = useState<string>('');
@@ -49,6 +42,7 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
 
     const AUTH_TOKEN = process.env.NEXT_PUBLIC_KOTANI_API_KEY!;
     const API_URL = process.env.NEXT_PUBLIC_KOTANI_API_URL!;
+    const WALLET_ID = process.env.NEXT_PUBLIC_WALLET_ID!;
 
     console.log(AUTH_TOKEN)
     console.log(API_URL)
@@ -66,7 +60,7 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
                 body: JSON.stringify({
                     from: currency,
                     to: "USDC",
-                    fiatAmount: price
+                    fiatAmount: Number(price)
                 })
             })
             if (!response.ok) {
@@ -172,12 +166,17 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
                     'Authorization': `Bearer ${AUTH_TOKEN}`
                 },
                 body: JSON.stringify({
-                    source_wallet: "67110003ef605dee0039e42f",
+                    source_wallet: WALLET_ID,
                     receivers_address: merchantAddress,
                     amount: cryptoAmount,
                     chain: "BASE",
                     token: "USDC"
                 })
+            });
+            console.log('Deposit request:', {
+                source_wallet: WALLET_ID,
+                receivers_address: merchantAddress,
+                amount: cryptoAmount,
             });
 
             if (!response.ok) {
@@ -261,6 +260,7 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
 
     const makeDeposit = async (customerKey: string) => {
         try {
+            console.log(amount)
             const response = await fetch(`${API_URL}/deposit/mobile-money`, {
                 method: 'POST',
                 headers: {
@@ -270,7 +270,7 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
                 body: JSON.stringify({
                     customer_key: customerKey,
                     amount: Number(price),
-                    wallet_id: "67110003ef605dee0039e42f"
+                    wallet_id: WALLET_ID
                 }),
             });
 

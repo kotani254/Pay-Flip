@@ -1,7 +1,5 @@
 import React from 'react'
 import { WalletComponents } from '../OnchainkitComponents/WalletComponent'
-import { IoMdLogIn } from 'react-icons/io'
-import { FiUserPlus } from 'react-icons/fi'
 import Head from "next/head";
 
 
