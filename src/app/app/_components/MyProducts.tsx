@@ -66,7 +66,7 @@ const MyProducts = () => {
 
         if (user?.address) {
             fetchData();
-            const intervalId = setInterval(fetchData, 10000); // Fetch every 10 seconds
+            const intervalId = setInterval(fetchData, 10000); 
             return () => clearInterval(intervalId);
         }
     }, [user]);

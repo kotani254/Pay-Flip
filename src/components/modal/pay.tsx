@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'react-hot-toast';
@@ -26,19 +26,8 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
     const [loading, setLoading] = useState<boolean>(false);
     const [currency, setCurrency] = useState<string>('');
     const [country, setCountry] = useState<string>('');
-    const [customerKey, setCustomerKey] = useState<string>('')
-    const [cryptoAmount, setCryptoAmount] = useState<string>('')
-
-    if (!isOpen) return null;
-
-    const reset = () => {
-        setName('')
-        setPhone('')
-        setAmount(0)
-        setCurrency('')
-        setCountry('')
-        setCustomerKey('')
-    }
+    // const [customerKey, setCustomerKey] = useState<string>('')
+    // const [cryptoAmount, setCryptoAmount] = useState<string>('')
 
     const AUTH_TOKEN = process.env.NEXT_PUBLIC_KOTANI_API_KEY!;
     const API_URL = process.env.NEXT_PUBLIC_KOTANI_API_URL!;
@@ -47,9 +36,60 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
     console.log(AUTH_TOKEN)
     console.log(API_URL)
 
+    const getOrCreateCustomer = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_URL}/customer/mobile-money/phone/${phone}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${AUTH_TOKEN}`
+                }
+            });
+            const responseData = await response.json();
+            console.log("Customer response:", responseData);
 
-    const getOnrampExchangeRate = async () => {
+            let customerKey;
 
+            if (responseData.success === true && responseData.data.customer_key) {
+                customerKey = responseData.data.customer_key;
+                console.log("Existing customer key:", customerKey);
+            } else {
+                const createResponse = await fetch(`${API_URL}/customer/mobile-money`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phone_number: phone,
+                        country_code: country,
+                        account_name: name,
+                        network: "MPESA"
+                    })
+                });
+
+                if (createResponse.ok) {
+                    const createResponseData = await createResponse.json();
+                    customerKey = createResponseData.data.customer_key;
+                    console.log("New customer key:", customerKey);
+                } else {
+                    throw new Error('Failed to create new customer');
+                }
+            }
+
+            if (!customerKey) {
+                throw new Error('Customer key not found in the response');
+            }
+
+            return customerKey;
+        } catch (error) {
+            console.error('Error while getting/creating customer:', error);
+            throw error;
+        }
+    }, [API_URL, AUTH_TOKEN, phone, country, name]);
+
+
+
+    const getOnrampExchangeRate = useCallback(async () => {
         try {
             const response = await fetch(`${API_URL}/rate/onramp`, {
                 method: 'POST',
@@ -65,17 +105,31 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
             })
             if (!response.ok) {
                 console.log("Error getting the rates")
+                return null;
             }
             const responseData = await response.json();
             const cryptoAmount = responseData.data.cryptoAmount;
-            console.log(cryptoAmount)
-            setCryptoAmount(cryptoAmount)
-
+            console.log("Crypto amount:", cryptoAmount)
+            return cryptoAmount;
         } catch (error) {
             console.error('Error fetching rates:', error);
-            return false;
+            return null;
         }
+    }, [currency, price, API_URL, AUTH_TOKEN]);
+
+
+
+    if (!isOpen) return null;
+
+    const reset = () => {
+        setName('')
+        setPhone('')
+        setAmount(0)
+        setCurrency('')
+        setCountry('')
+        // setCustomerKey('')
     }
+
 
     const checkTransactionStatus = async (referenceId: string, retries = 5, delay = 5000) => {
         try {
@@ -156,9 +210,13 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
     const sendToMerchantWallet = async () => {
 
         const toastId = toast.loading('Transferring to merchant address...', { id: 'transferToMerchant' });
-        await getOnrampExchangeRate()
-        console.log(cryptoAmount)
         try {
+            const cryptoAmount = await getOnrampExchangeRate();
+            if (!cryptoAmount) {
+                throw new Error('Failed to get crypto amount');
+            }
+            console.log("Sending crypto amount:", cryptoAmount);
+
             const response = await fetch(`${API_URL}/onramp/fiat-to-crypto/wallet`, {
                 method: 'POST',
                 headers: {
@@ -209,58 +267,11 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
         }
     }
 
-    const getOrCreateCustomer = async () => {
-
-        try {
-            const response = await fetch(`${API_URL}/customer/mobile-money/phone/${phone}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${AUTH_TOKEN}`
-                }
-            });
-            const responseData = await response.json();
-            console.log(responseData)
-
-            if (responseData.success == true) {
-                setCustomerKey(responseData.data.customer_key)
-            } else {
-                const createResponse = await fetch(`${API_URL}/customer/mobile-money`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${AUTH_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        phone_number: phone,
-                        country_code: country,
-                        account_name: name,
-                        network: "MPESA"
-                    })
-                });
-
-                if (createResponse.ok) {
-                    const createResponseData = await createResponse.json();
-                    setCustomerKey(createResponseData.data.customer_key)
-
-                } else {
-                    throw new Error('Failed to create new customer');
-                }
-            }
-
-            if (!customerKey) {
-                throw new Error('Customer key not found in the response');
-            }
-
-            return customerKey;
-        } catch (error) {
-            console.error('Error while getting/creating customer:', error);
-            throw error;
-        }
-    }
 
     const makeDeposit = async (customerKey: string) => {
         try {
             console.log(amount)
+            console.log("Making deposit with customer key:", customerKey);
             const response = await fetch(`${API_URL}/deposit/mobile-money`, {
                 method: 'POST',
                 headers: {
@@ -298,10 +309,12 @@ const Pay: React.FC<RoleSelectModalProps> = ({ isOpen, onClose, merchantAddress,
 
         try {
             console.log(price)
+            console.log("Submitting payment for price:", price);
             const customerKey = await getOrCreateCustomer();
-            setCustomerKey(customerKey);
+            console.log("Obtained customer key:", customerKey);
 
             const referenceId = await makeDeposit(customerKey);
+            console.log("Obtained reference ID:", referenceId);
 
             const isDepositSuccessful = await checkDepositStatus(referenceId);
 
