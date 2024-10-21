@@ -3,6 +3,9 @@
 
 PayFlip is a platform that seamlessly converts local currency payments into stablecoin settlements, bridging the gap between traditional and digital finance.
 
+
+Contract Address - 0x3578966a427236C326bCd72244de9F8456141F9B
+
 # What it does:
 - Enables users to make payments in their local currency (e.g., via M-Pesa)
 - Automatically converts payments to stablecoins for merchant settlements
@@ -48,8 +51,6 @@ The equivalent amount of stablecoin is transferred to the merchant's wallet.
 Both the user and the merchant receive confirmations of the completed transaction.
 The merchant can now access the stablecoin in their wallet.
 
-### Screenshots
-file:///home/kinya/Downloads/image732.png
 
 ### Tech Stack
 
