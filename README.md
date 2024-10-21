@@ -48,7 +48,8 @@ The equivalent amount of stablecoin is transferred to the merchant's wallet.
 Both the user and the merchant receive confirmations of the completed transaction.
 The merchant can now access the stablecoin in their wallet.
 
-
+### Screenshots
+file:///home/kinya/Downloads/image732.png
 
 ### Tech Stack
 
